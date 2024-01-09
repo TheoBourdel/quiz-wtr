@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+  server:
+    build: ./server
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+
+  client:
+    build: ./client
+    ports:
+      - 3000:3000
+    stdin_open: true
+    tty: true
+    depends_on:
+      - server
+
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: quiz
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: esgi
+    ports:
+      - "5432:5432"
