@@ -5,6 +5,8 @@ services:
     build: ./server
     ports:
       - "8000:8000"
+    volumes:
+    - ./server:/app 
     depends_on:
       - db
 
@@ -13,6 +15,8 @@ services:
     ports:
       - 3000:3000
     stdin_open: true
+    volumes:
+    - ./client:/app 
     tty: true
     depends_on:
       - server

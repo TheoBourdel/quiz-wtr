@@ -6,7 +6,7 @@ COPY package.json .
 
 RUN npm install
 
-COPY . .
+COPY --chown=node:node . .
 
 EXPOSE 8000
 
