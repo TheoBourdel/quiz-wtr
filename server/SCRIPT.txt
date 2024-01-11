@@ -1,0 +1,10 @@
+CREATE TABLE quiz (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE question (
+    id SERIAL PRIMARY KEY,
+    quiz_id INT REFERENCES quiz(id),
+    name TEXT NOT NULL
+);
