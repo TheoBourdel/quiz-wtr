@@ -5,12 +5,13 @@ import helmet from 'helmet';
 import dotenv from 'dotenv';
 import quizRoute from './route/quizRoute.js';
 import questionRoute from './route/questionRoute.js';
+import userRoute from './route/userRoute.js';
+
 
 const app = express();
 dotenv.config();
 
 app.use(cors({ 
-    // credentials:true, 
     origin: '*',
     methods:['GET', 'POST', 'PUT', 'DELETE'] 
 }))
@@ -20,6 +21,8 @@ app.use(bodyParser.json());
 
 app.use('/', quizRoute);
 app.use('/', questionRoute);
+app.use('/', userRoute);
+
 
 app.get('/api', (req, res) => {
     res.send('Hello World!')
