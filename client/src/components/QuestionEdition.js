@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Button, Modal, TextInput, Label, ToggleSwitch } from 'flowbite-react';
+import AnswerCard from './AnswerCard';
 import axios from 'axios';
 
 export default function QuestionEdition() {
@@ -10,6 +11,7 @@ export default function QuestionEdition() {
     const [name, setName] = useState('');
     const [answers, setAnswers] = useState([]);
     const [isCorrect, setIsCorrect] = useState(false);
+    const [currentAnswer, setCurrentAnswer] = useState(null);
 
     useEffect(() => {
         getAnswers();
@@ -18,6 +20,7 @@ export default function QuestionEdition() {
 
     function onCloseModal() {
         setOpenModal(false);
+        setCurrentAnswer(null);
         setName('');
     }
 
@@ -36,12 +39,48 @@ export default function QuestionEdition() {
             console.log(err);
         })
     }
+
     function createAnswer() {
+        console.log(isCorrect);
         axios.post(`http://localhost:8000/answer`, {
             name,
-            question_id
+            question_id,
+            isCorrect
         }).then(res => {
             setAnswers([...answers, res.data]);
+            onCloseModal();
+        }).catch(err => {
+            console.log(err);
+        })
+    }
+
+    function deleteAnswer(id) {
+        axios.delete(`http://localhost:8000/answer/${id}`).then(res => {
+            setAnswers(answers.filter(answer => answer.id !== id));
+        }).catch(err => {
+            console.log(err);
+        })
+    }
+
+    function openUpdateModal(answer) {
+        setCurrentAnswer(answer);
+        setOpenModal(true);
+        setName(answer.name);
+        setIsCorrect(answer.is_correct);
+    }
+
+    function updateAnswer(id) {
+        axios.put(`http://localhost:8000/answer/${id}`, {
+            name,
+            question_id,
+            isCorrect
+        }).then(res => {
+            setAnswers(answers.map(answer => {
+                if(answer.id === id) {
+                    return res.data;
+                }
+                return answer;
+            }));
             onCloseModal();
         }).catch(err => {
             console.log(err);
@@ -53,7 +92,11 @@ export default function QuestionEdition() {
             <Modal show={openModal} size="md" onClose={onCloseModal} dismissible>
                 <Modal.Body>
                     <div className="space-y-6">
-                        <h3 className="text-xl font-medium text-gray-900 dark:text-white">Créer une réponse</h3>
+                        <h3 className="text-xl font-medium text-gray-900 dark:text-white">
+                            {
+                                currentAnswer ? "Modifier une réponse" : "Créer une réponse"
+                            }
+                        </h3>
                         <div>
                             <div className="mb-2 block">
                                 <Label htmlFor="name" value="Réponse" />
@@ -68,7 +111,12 @@ export default function QuestionEdition() {
                         </div>
                         <ToggleSwitch checked={isCorrect} label={isCorrect ? "Bonne réponse" : "Mauvaise réponse"} onChange={setIsCorrect} />
                         <div className="w-full">
-                            <Button className='w-full' onClick={createAnswer}>Créer</Button>
+                            {
+                                currentAnswer ? 
+                                <Button className='w-full' onClick={() => updateAnswer(currentAnswer.id)}>Modifier</Button>
+                                :
+                                <Button className='w-full' onClick={createAnswer}>Créer</Button>
+                            }
                         </div>
                     </div>
                 </Modal.Body>
@@ -77,21 +125,15 @@ export default function QuestionEdition() {
                 {question.name}
             </h2>
             <Button onClick={() => setOpenModal(true)} className='mt-2'>Ajouter une réponse</Button>
-            {
-                answers.map(answer => {
-                    return (
-                        <div key={answer.id} className="cursor-pointer flex rounded-lg border border-gray-200 bg-white shadow-md dark:border-gray-700 dark:bg-gray-800 flex-row h-full w-full justify-between gap-4 p-6 items-center">
-                            <h5 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                                {answer.name}
-                            </h5>
-                            {/* <div className="flex flex-row">
-                                <Button className="mr-2">Modifier</Button>
-                                <Button color='failure' className="mr-2">Supprimer</Button>
-                            </div> */}
-                        </div>
-                    )
-                })
-            }
+            <div className="flex flex-col gap-4 mt-6 flex-wrap">
+                {
+                    answers.map(answer => {
+                        return (
+                            <AnswerCard key={answer.id} answer={answer} deleteAnswer={() => deleteAnswer(answer.id)} updateAnswer={() => openUpdateModal(answer)} />
+                        )
+                    })
+                }
+            </div>
         </div>
     )
 }
