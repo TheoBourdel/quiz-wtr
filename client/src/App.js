@@ -6,9 +6,11 @@ import QuizEdition from './components/QuizEdition';
 import QuestionEdition from './components/QuestionEdition';
 import Login from './pages/login';
 import Register from './pages/register';
+import { AuthProvider } from './context/AuthContext';
 
 function App() {
   return (
+  <AuthProvider>
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Layout />}>
@@ -20,6 +22,7 @@ function App() {
         </Route>
       </Routes>
     </BrowserRouter>
+  </AuthProvider>
   );
 }
 

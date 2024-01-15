@@ -3,11 +3,13 @@ import { Button, Label, Modal, TextInput } from 'flowbite-react';
 import QuizCard from './QuizCard';
 import axios from 'axios'
 import { useNavigate } from "react-router-dom";
+import { useAuth } from '../context/AuthContext';
 
 export default function Admin() {
     const [openModal, setOpenModal] = useState(false);
     const [quizs, setQuizs] = useState([]);
     const [name, setName] = useState('');
+    const { user } = useAuth();
 
     const navigate = useNavigate();
 
@@ -54,7 +56,7 @@ export default function Admin() {
     return (
         <div>
             <Button onClick={() => setOpenModal(true)}>Créer un Quiz</Button>
-
+            <div>Current user : {user && user.username}</div>
             <Modal show={openModal} size="md" onClose={onCloseModal} dismissible>
                 <Modal.Body>
                     <div className="space-y-6">
