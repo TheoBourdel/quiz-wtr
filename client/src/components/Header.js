@@ -3,14 +3,18 @@ import React from 'react'
 import { Button, Navbar } from 'flowbite-react';
 import { DarkThemeToggle, Flowbite } from 'flowbite-react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 
 export default function Header() {
+    const { user } = useAuth();
     return (
         <Navbar fluid rounded>
      
             <Navbar.Brand href="https://flowbite-react.com">
-                <span className="self-center whitespace-nowrap text-xl font-semibold dark:text-white">Quiz Game</span>
+                <span className="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
+                    Quiz Game { user && user.username}
+                </span>
             </Navbar.Brand>
             <div className="flex md:order-2 gap-4">
                 <Button>Get started</Button>

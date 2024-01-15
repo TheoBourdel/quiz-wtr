@@ -2,11 +2,13 @@ import React from 'react'
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react'
 import { toast, ToastContainer } from 'react-toastify';
-import axios from 'axios';
 import 'react-toastify/dist/ReactToastify.css';
+import { useAuth } from '../context/AuthContext';
+
 
 export default function Login() {
     const navigate = useNavigate();
+    const { login } = useAuth();
 
     const [formData, setFormData] = useState({
         username: '',
@@ -21,25 +23,14 @@ export default function Login() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        try {
-            axios.post(process.env.REACT_APP_API_URL + 'login', {
-                username: formData.username,
-                password: formData.password,
-            }).then(res => {
-                if(res) {
-                    navigate("/");
-                } else {
-                    toast.error(res.data.message, {
-                        position: toast.POSITION.TOP_RIGHT
-                    });
-                }
-            });
-    
+        const success = await login(formData.username, formData.password);
+        if (success) {
             toast.success('Vous êtes Connecté !', {
                 position: toast.POSITION.TOP_RIGHT
             });
-        } catch (error) {
-            toast.error(error.response.data.message, {
+            navigate("/");
+        } else {
+            toast.error("Erreur de connexion", {
                 position: toast.POSITION.TOP_RIGHT
             });
         }
@@ -48,7 +39,7 @@ export default function Login() {
     return (
         <div className='flex justify-center'>
             <form onSubmit={handleSubmit} className=' w-100'>
-                <ToastContainer />
+                <ToastContainer /> 
                 <h1 className="text-xl text-center font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
                     Connexion
                 </h1>
