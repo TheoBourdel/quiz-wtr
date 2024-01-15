@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import { useParams } from 'react-router-dom'
 import { Button, Modal, Label, TextInput } from 'flowbite-react';
+import Question from './Question';
 
 export default function QuizEdition() {
-    const [openModal, setOpenModal] = useState(false);
+    const [openCreateQuestionModal, setCreateQuestionModal] = useState(false);
     const [quiz, setQuiz] = useState(false);
     const [name, setName] = useState('');
     const [questions, setQuestions] = useState([]);
@@ -15,7 +16,7 @@ export default function QuizEdition() {
     }, [])
 
     function onCloseModal() {
-        setOpenModal(false);
+        setCreateQuestionModal(false);
         setName('');
     }
 
@@ -34,8 +35,8 @@ export default function QuizEdition() {
             name,
             quiz_id: id
         }).then(res => {
-            console.log(res.data);
-            // onCloseModal();
+            setQuestions([...questions, res.data]);
+            onCloseModal();
         }).catch(err => {
             console.log(err);
         })
@@ -43,8 +44,15 @@ export default function QuizEdition() {
 
     function getQuestions() {
         axios.get(`http://localhost:8000/quiz/${id}/questions`).then(res => {
-            setQuestions(res.data.question);
-            console.log(res.data);
+            setQuestions(res.data);
+        }).catch(err => {
+            console.log(err);
+        })
+    }
+
+    function deleteQuestion(id) {
+        axios.delete(`http://localhost:8000/question/${id}`).then(res => {
+            setQuestions(questions.filter(question => question.id !== id));
         }).catch(err => {
             console.log(err);
         })
@@ -52,7 +60,7 @@ export default function QuizEdition() {
 
     return (
         <div>
-            <Modal show={openModal} size="md" onClose={onCloseModal} dismissible>
+            <Modal show={openCreateQuestionModal} size="md" onClose={onCloseModal} dismissible>
                 <Modal.Body>
                     <div className="space-y-6">
                         <h3 className="text-xl font-medium text-gray-900 dark:text-white">Créer une question</h3>
@@ -74,10 +82,15 @@ export default function QuizEdition() {
                     </div>
                 </Modal.Body>
             </Modal>
-            <h2 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+            <h2 className="text-4xl underline text-center font-bold tracking-tight text-gray-900 dark:text-white">
                 {quiz.name}
             </h2>
-            <Button onClick={() => setOpenModal(true)} className='mt-2'>Créer une question</Button>
+            <Button onClick={() => setCreateQuestionModal(true)} className='mt-2'>Créer une question</Button>
+            <div className="flex flex-col gap-4 mt-6 flex-wrap">
+            {questions.map(question => (
+                <Question key={question.id} question={question} deleteQuestion={() => deleteQuestion(question.id)} quizId={id} />
+                ))}
+            </div>
         </div>
     )
 }

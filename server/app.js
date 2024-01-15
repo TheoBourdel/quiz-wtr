@@ -5,6 +5,7 @@ import helmet from 'helmet';
 import dotenv from 'dotenv';
 import quizRoute from './route/quizRoute.js';
 import questionRoute from './route/questionRoute.js';
+import answerRoute from './route/answerRoute.js';
 
 const app = express();
 dotenv.config();
@@ -20,6 +21,7 @@ app.use(bodyParser.json());
 
 app.use('/', quizRoute);
 app.use('/', questionRoute);
+app.use('/', answerRoute);
 
 app.get('/api', (req, res) => {
     res.send('Hello World!')

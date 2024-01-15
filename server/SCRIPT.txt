@@ -8,3 +8,10 @@ CREATE TABLE question (
     quiz_id INT REFERENCES quiz(id),
     name TEXT NOT NULL
 );
+
+CREATE TABLE answer (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    is_correct BOOLEAN DEFAULT FALSE,
+    question_id INT REFERENCES question(id)
+);

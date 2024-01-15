@@ -6,7 +6,7 @@ export default function Layout() {
   return (
     <>
         <Header />
-        <main className='p-4'>
+        <main className='p-4 dark:bg-gray-800'>
             <Outlet />
         </main>
     </>

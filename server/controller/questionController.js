@@ -1,4 +1,5 @@
 import QuestionModel from '../model/questionModel.js';
+import AnswerModel from '../model/answerModel.js';
 
 export const createQuestion = async (req, res) => {
     try {
@@ -8,6 +9,48 @@ export const createQuestion = async (req, res) => {
         const question = await QuestionModel.create({ name, quiz_id });
 
         return res.status(201).json(question);
+
+    } catch(error) {
+        return res.status(500).json({ message: error.message });
+    }
+}
+
+export const deleteQuestion = async (req, res) => {
+    try {
+
+        const { id } = req.params;
+
+        const question = await QuestionModel.destroy({ where: { id } });
+
+        return res.status(200).json(question);
+
+    } catch(error) {
+        return res.status(500).json({ message: error.message });
+    }
+}
+
+export const getQuestion = async (req, res) => {
+    try {
+
+        const { id } = req.params;
+
+        const question = await QuestionModel.findByPk(id);
+
+        return res.status(200).json(question);
+
+    } catch(error) {
+        return res.status(500).json({ message: error.message });
+    }
+}
+
+export const getAnswers = async (req, res) => {
+    try {
+
+        const { id } = req.params;
+
+        const answers = await AnswerModel.findAll({ where: { question_id: id } });
+
+        return res.status(200).json(answers);
 
     } catch(error) {
         return res.status(500).json({ message: error.message });
