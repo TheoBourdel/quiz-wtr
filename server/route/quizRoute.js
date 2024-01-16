@@ -7,5 +7,6 @@ route.get('/quiz/:id', QuizController.getQuiz);
 route.post('/quiz', QuizController.createQuiz);
 route.delete('/quiz/:id', QuizController.deleteQuiz);
 route.get('/quiz/:id/questions', QuizController.getQuizQuestions);
+route.put('/quiz/:id', QuizController.updateQuiz);
 
 export default route;

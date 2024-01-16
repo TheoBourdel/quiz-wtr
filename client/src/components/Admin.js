@@ -9,6 +9,7 @@ export default function Admin() {
     const [openModal, setOpenModal] = useState(false);
     const [quizs, setQuizs] = useState([]);
     const [name, setName] = useState('');
+    const [currentQuiz, setCurrentQuiz] = useState(null);
     const { user } = useAuth();
 
     const navigate = useNavigate();
@@ -20,6 +21,7 @@ export default function Admin() {
     function onCloseModal() {
         setOpenModal(false);
         setName('');
+        setCurrentQuiz(null);
     }
 
     function getQuizs() {
@@ -42,6 +44,12 @@ export default function Admin() {
         })
     }
 
+    function openUpdateModal(quiz) {
+        setCurrentQuiz(quiz);
+        setOpenModal(true);
+        setName(quiz.name);
+    }
+
     function deleteQuiz(id) {
         axios.delete(`http://localhost:8000/quiz/${id}`).then(res => {
             setQuizs(quizs.filter(quiz => quiz.id !== id));
@@ -53,6 +61,23 @@ export default function Admin() {
     function navigateToQuiz(id) {
         navigate(`admin/quiz/${id}`);
     }
+
+    function updateQuiz(id) {
+        axios.put(`http://localhost:8000/quiz/${id}`, {
+            name
+        }).then(res => {
+            setQuizs(quizs.map(quiz => {
+                if(quiz.id === id) {
+                    return res.data;
+                }
+                return quiz;
+            }));
+            onCloseModal();        
+        }).catch(err => {
+            console.log(err);
+        })
+    }
+
     return (
         <div>
             <Button onClick={() => setOpenModal(true)}>Créer un Quiz</Button>
@@ -60,7 +85,11 @@ export default function Admin() {
             <Modal show={openModal} size="md" onClose={onCloseModal} dismissible>
                 <Modal.Body>
                     <div className="space-y-6">
-                        <h3 className="text-xl font-medium text-gray-900 dark:text-white">Créer un quiz</h3>
+                        <h3 className="text-xl font-medium text-gray-900 dark:text-white">
+                            {
+                                currentQuiz ? "Modifier un quiz" : "Créer un quiz"
+                            }
+                        </h3>
                         <div>
                             <div className="mb-2 block">
                                 <Label htmlFor="name" value="Nom du quiz" />
@@ -74,7 +103,12 @@ export default function Admin() {
                             />
                         </div>
                         <div className="w-full">
-                            <Button className='w-full' onClick={createQuiz}>Créer</Button>
+                            {
+                                currentQuiz ? 
+                                <Button className='w-full' onClick={() => updateQuiz(currentQuiz.id)}>Modifier</Button>
+                                :
+                                <Button className='w-full' onClick={createQuiz}>Créer</Button>
+                            }
                         </div>
                     </div>
                 </Modal.Body>
@@ -83,7 +117,7 @@ export default function Admin() {
                 {
                     quizs.map(quiz => {
                         return (
-                            <QuizCard key={quiz.id} name={quiz.name} isAdmin={true} deleteQuiz={() => deleteQuiz(quiz.id)} quizId={quiz.id} />
+                            <QuizCard key={quiz.id} name={quiz.name} isAdmin={true} deleteQuiz={() => deleteQuiz(quiz.id)} updateQuiz={() => openUpdateModal(quiz)} quizId={quiz.id} />
                         )
                     })
                 }

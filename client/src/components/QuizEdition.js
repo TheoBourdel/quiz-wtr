@@ -5,10 +5,11 @@ import { Button, Modal, Label, TextInput } from 'flowbite-react';
 import Question from './Question';
 
 export default function QuizEdition() {
-    const [openCreateQuestionModal, setCreateQuestionModal] = useState(false);
+    const [openModal, setOpenModal] = useState(false);
     const [quiz, setQuiz] = useState(false);
     const [name, setName] = useState('');
     const [questions, setQuestions] = useState([]);
+    const [currentQuestion, setCurrentQuestion] = useState(null);
 
     useEffect(() => {
         getQuiz();
@@ -16,8 +17,9 @@ export default function QuizEdition() {
     }, [])
 
     function onCloseModal() {
-        setCreateQuestionModal(false);
+        setOpenModal(false);
         setName('');
+        setCurrentQuestion(null);
     }
 
     const { id } = useParams();
@@ -58,12 +60,38 @@ export default function QuizEdition() {
         })
     }
 
+    function openUpdateModal(question) {
+        setCurrentQuestion(question);
+        setOpenModal(true);
+        setName(question.name);
+    }
+
+    function updateQuestion(id) {
+        axios.put(`http://localhost:8000/question/${id}`, {
+            name
+        }).then(res => {
+            setQuestions(questions.map(question => {
+                if(question.id === id) {
+                    return res.data;
+                }
+                return question;
+            }));
+            onCloseModal();
+        }).catch(err => {
+            console.log(err);
+        })
+    }
+
     return (
         <div>
-            <Modal show={openCreateQuestionModal} size="md" onClose={onCloseModal} dismissible>
+            <Modal show={openModal} size="md" onClose={onCloseModal} dismissible>
                 <Modal.Body>
                     <div className="space-y-6">
-                        <h3 className="text-xl font-medium text-gray-900 dark:text-white">Créer une question</h3>
+                        <h3 className="text-xl font-medium text-gray-900 dark:text-white">
+                            {
+                                currentQuestion ? "Modifier une question" : "Créer une question"
+                            }
+                        </h3>
                         <div>
                             <div className="mb-2 block">
                                 <Label htmlFor="name" value="Question" />
@@ -77,7 +105,12 @@ export default function QuizEdition() {
                             />
                         </div>
                         <div className="w-full">
-                            <Button className='w-full' onClick={createQuestion}>Créer</Button>
+                            {
+                                currentQuestion ? 
+                                <Button className='w-full' onClick={() => updateQuestion(currentQuestion.id)}>Modifier</Button>
+                                :
+                                <Button className='w-full' onClick={createQuestion}>Créer</Button>
+                            }
                         </div>
                     </div>
                 </Modal.Body>
@@ -85,10 +118,10 @@ export default function QuizEdition() {
             <h2 className="text-4xl underline text-center font-bold tracking-tight text-gray-900 dark:text-white">
                 {quiz.name}
             </h2>
-            <Button onClick={() => setCreateQuestionModal(true)} className='mt-2'>Créer une question</Button>
+            <Button onClick={() => setOpenModal(true)} className='mt-2'>Créer une question</Button>
             <div className="flex flex-col gap-4 mt-6 flex-wrap">
             {questions.map(question => (
-                <Question key={question.id} question={question} deleteQuestion={() => deleteQuestion(question.id)} quizId={id} />
+                <Question key={question.id} question={question} deleteQuestion={() => deleteQuestion(question.id)} updateQuestion={() => openUpdateModal(question)} quizId={id} />
                 ))}
             </div>
         </div>

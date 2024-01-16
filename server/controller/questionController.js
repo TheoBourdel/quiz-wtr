@@ -43,6 +43,25 @@ export const getQuestion = async (req, res) => {
     }
 }
 
+export const updateQuestion = async (req, res) => {
+    try {
+
+        const { id } = req.params;
+        const { name } = req.body;
+
+        const question = await QuestionModel.findByPk(id);
+        console.log(question);
+        question.name = name;
+
+        await question.save();
+
+        return res.status(200).json(question);
+
+    } catch(error) {
+        return res.status(500).json({ message: error.message });
+    }
+}
+
 export const getAnswers = async (req, res) => {
     try {
 

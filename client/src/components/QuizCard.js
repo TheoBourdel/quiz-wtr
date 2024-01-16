@@ -3,10 +3,10 @@ import React from 'react'
 import { Button, Card } from 'flowbite-react';
 import { Link } from 'react-router-dom';
 
-export default function QuizCard({ name, isAdmin, deleteQuiz, quizId }) {
+export default function QuizCard({ name, isAdmin, deleteQuiz, quizId, updateQuiz }) {
 
     return (
-        <Card className="w-[400px]">
+        <Card className="w-[500px]">
             <h5 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
                 {name}
             </h5>
@@ -16,9 +16,10 @@ export default function QuizCard({ name, isAdmin, deleteQuiz, quizId }) {
             {
                 isAdmin ? (
                     <div className="mt-4 flex flex-row">
-                        <Button className="mr-2">
-                            <Link to={"/admin/quiz/" + quizId}>Modifier</Link>
+                        <Button color="gray" className="mr-2">
+                            <Link to={"/admin/quiz/" + quizId}>Gérer les questions</Link>
                         </Button>
+                        <Button className="mr-2" onClick={() => updateQuiz()}>Modifier</Button>
                         <Button color='failure' className="mr-2" onClick={() => deleteQuiz()}>Supprimer</Button>
                     </div>
                 ) : (

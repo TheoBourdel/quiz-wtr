@@ -15,6 +15,25 @@ export const createQuiz = async (req, res) => {
     }
 }
 
+export const updateQuiz = async (req, res) => {
+    try {
+
+        const { id } = req.params;
+        const { name } = req.body;
+
+        const quiz = await QuizModel.findByPk(id);
+
+        quiz.name = name;
+
+        await quiz.save();
+
+        return res.status(200).json(quiz);
+
+    } catch (error) {
+        return res.status(500).json({ message: error.message })
+    }
+}
+
 export const getQuizs = async (req, res) => {
     try {
 
