@@ -7,7 +7,7 @@ import { useAuth } from '../context/AuthContext';
 
 
 export default function Header() {
-    const { user } = useAuth();
+    const { user} = useAuth();
     return (
         <Navbar fluid>
             <Navbar.Brand href="https://flowbite-react.com">
@@ -16,17 +16,29 @@ export default function Header() {
                 </span>
             </Navbar.Brand>
             <div className="flex md:order-2 gap-4">
-                <Button>Get started</Button>
-                <Link to="/login">Log in</Link>
-                <Link to="/register">Sign up</Link>
+                { user && <Button>Get started</Button>}
+
+                {!user  && 
+                <div className="mt-3 flex space-x-2">
+                    <Button> <Link to="/login">Log in</Link></Button>
+                    <Button><Link to="/register">Sign up</Link></Button>
+                </div>
+                } 
                 <Navbar.Toggle />
-                    <Flowbite>
-                <DarkThemeToggle />
+                <Flowbite>
+                    <DarkThemeToggle />
                 </Flowbite>
             </div>
             <Navbar.Collapse>
-                <Link to="/">Home</Link>
-                <Link to="/admin">Admin</Link>
+                { user && 
+                <div className="mt-3 flex space-x-12">
+                    <Link to="/">Home</Link>
+                    { user && user.role == 'ADMIN'
+                        ?
+                        <Link to="/admin">Admin</Link>
+                        :''
+                    }
+                </div>}
             </Navbar.Collapse>
         </Navbar>
     )

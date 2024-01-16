@@ -1,21 +1,21 @@
-import UserModel from '../model/user.js';
+import UserModel from '../model/userModel.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 export const register = async (req, res) => {
     try {
-        const { username, password } = req.body;
+        const { username, password, role } = req.body;
 
         const exist = await UserModel.findOne({ username });
 
-        if (exist) {
+        if (exist && exist.dataValues.username === username) {
             return res.status(400).json({ message: 'Un compte est déjà attribué à cet utilisateur' });
         }
 
         const salt = await bcrypt.genSalt(10);
         const hash = await bcrypt.hash(password, salt);
-
-        const user = await UserModel.create({ username, password: hash });
+        console.log(role)
+        const user = await UserModel.create({ username, password: hash, role:'USER'});
 
         if (user) {
             const token = createToken(user.id)
