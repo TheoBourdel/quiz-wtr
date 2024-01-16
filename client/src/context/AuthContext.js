@@ -14,7 +14,6 @@ export const AuthProvider = ({ children }) => {
                 password: password,
             }).then(res => {
                 if(res && res.data) {
-                    console.log(res.data.user)
                     setUser(res.data.user)
                     return true;
                 } else {
