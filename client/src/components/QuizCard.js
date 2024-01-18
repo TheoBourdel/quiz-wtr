@@ -3,7 +3,7 @@ import React from 'react'
 import { Button, Card } from 'flowbite-react';
 import { Link } from 'react-router-dom';
 
-export default function QuizCard({ name, isAdmin, deleteQuiz, quizId, updateQuiz }) {
+export default function QuizCard({ name, isAdmin, deleteQuiz, quizId, updateQuiz, createRoom, isCreationRoom}) {
 
     return (
         <Card className="w-[500px]">
@@ -23,8 +23,8 @@ export default function QuizCard({ name, isAdmin, deleteQuiz, quizId, updateQuiz
                         <Button color='failure' className="mr-2" onClick={() => deleteQuiz()}>Supprimer</Button>
                     </div>
                 ) : (
-                    <Button>
-                        Read more
+                    <Button onClick={()=>createRoom()}>
+                        START
                         <svg className="-mr-1 ml-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                             <path
                                 fillRule="evenodd"

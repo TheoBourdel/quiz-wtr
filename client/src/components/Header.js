@@ -16,7 +16,11 @@ export default function Header() {
                 </span>
             </Navbar.Brand>
             <div className="flex md:order-2 gap-4">
-                { user && <Button>Get started</Button>}
+                { user && 
+                <Button>
+                    <Link to="/quizs">PLAY</Link>
+                </Button>
+                }
 
                 {!user  && 
                 <div className="mt-3 flex space-x-2">

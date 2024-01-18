@@ -7,6 +7,8 @@ import QuestionEdition from './components/QuestionEdition';
 import Login from './pages/login';
 import Register from './pages/register';
 import { AuthProvider } from './context/AuthContext';
+import Games from './components/Game';
+import Quiz from './components/Quiz';
 
 function App() {
   return (
@@ -19,6 +21,8 @@ function App() {
           <Route path='admin/quiz/:id/question/:question_id' element={<QuestionEdition />} />
           <Route path='login' element={<Login />} />
           <Route path='register' element={<Register />} />
+          <Route path='quizs' element={<Games />} />
+          <Route path='quiz/:link' element={<Quiz />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -16,8 +16,6 @@ export default function Login() {
         password: '',
     });
     
-    logout()
-
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
