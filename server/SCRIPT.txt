@@ -34,4 +34,5 @@ CREATE TABLE room (
     nombreDePersonne INT,
     quiz_id INT NOT NULL,
     FOREIGN KEY (quiz_id) REFERENCES quiz(id)
+    
 );

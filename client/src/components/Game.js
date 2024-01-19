@@ -13,15 +13,14 @@ export default function Games() {
     const [currentQuiz, setCurrentQuiz] = useState(null);
     const [isPrivate, setIsPrivate] = useState(false);
     const token = generateToken();
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         nombreDePersonne: '',
         isPrivate: '',
-        link:'http://localhost:3000/quiz/'+token,
+        link: token,
         password:''
 
     });
-    const navigate = useNavigate();
-
 
     function generateToken() {
         return Math.random().toString(16).substr(2);
