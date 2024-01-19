@@ -14,6 +14,14 @@ Quiz.init({
         type: DataTypes.STRING(255),
         allowNull: false
     },
+    israndom: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false
+    },
+    timer: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+    }
 }, {
     sequelize,
     tableName: 'quiz',

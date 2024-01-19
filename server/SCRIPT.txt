@@ -36,3 +36,10 @@ CREATE TABLE room (
     FOREIGN KEY (quiz_id) REFERENCES quiz(id)
     
 );
+-- Ajouter la colonne isRandom (INTEGER)
+ALTER TABLE quiz
+ADD COLUMN isRandom BOOLEAN;
+
+-- Ajouter la colonne timer (INTEGER)
+ALTER TABLE quiz
+ADD COLUMN timer INTEGER;

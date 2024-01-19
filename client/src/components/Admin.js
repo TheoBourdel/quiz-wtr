@@ -81,7 +81,6 @@ export default function Admin() {
     return (
         <div>
             <Button onClick={() => setOpenModal(true)}>Créer un Quiz</Button>
-            <div>Current user : {user && user.username}</div>
             <Modal show={openModal} size="md" onClose={onCloseModal} dismissible>
                 <Modal.Body>
                     <div className="space-y-6">
