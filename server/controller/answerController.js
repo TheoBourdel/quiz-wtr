@@ -5,6 +5,11 @@ export const createAnswer = async (req, res) => {
             
         const { name, question_id } = req.body;
         const is_correct = req.body.isCorrect;
+
+        const answers = await AnswerModel.findAll({ where: { question_id: question_id } });
+        if (answers.length >= 4) {
+            return res.status(400).json({ message: "question already has 4 answers"})
+        }
     
         const answer = await AnswerModel.create({ name, question_id, is_correct });
     

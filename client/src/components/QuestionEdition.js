@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { Button, Modal, TextInput, Label, ToggleSwitch } from 'flowbite-react';
+import { Button, Modal, TextInput, Label, ToggleSwitch, Tooltip } from 'flowbite-react';
 import AnswerCard from './AnswerCard';
 import axios from 'axios';
 
@@ -124,7 +124,15 @@ export default function QuestionEdition() {
             <h2 className="text-4xl underline text-center font-bold tracking-tight text-gray-900 dark:text-white">
                 {question.name}
             </h2>
-            <Button onClick={() => setOpenModal(true)} className='mt-2'>Ajouter une réponse</Button>
+            {
+                answers.length === 4 ? 
+                    <Tooltip content="Vous ne pouvez pas créer plus de 4 réponses">
+                        <Button onClick={() => setOpenModal(true)} disabled className='mt-2'>Ajouter une réponse</Button>
+                    </Tooltip>
+                    :
+                    <Button onClick={() => setOpenModal(true)} className='mt-2'>Ajouter une réponse</Button>
+            }
+
             <div className="flex flex-col gap-4 mt-6 flex-wrap">
                 {
                     answers.map(answer => {
