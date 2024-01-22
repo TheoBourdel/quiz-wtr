@@ -24,7 +24,6 @@ CREATE TABLE IF NOT EXISTS users (
     refresh_token TEXT
 );
 
-
 CREATE TABLE room (
     id SERIAL PRIMARY KEY,
     link VARCHAR(255) NOT NULL,

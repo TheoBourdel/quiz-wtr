@@ -1,25 +1,20 @@
 export default function (io) {
+    const users = {};
     return function (socket) {
-        socket.on('joinRoom', (roomId) => {
-            console.log('joinRoom===> ',roomId)
-            socket.join(roomId);
-            console.log(`User joined room: ${roomId}`);
-            socket.emit('joinedRoom', roomId);
+
+        socket.on('joinRoom', (data) => {
+            socket.join(data.roomId);
         });
 
-        socket.on('leaveRoom', (roomId) => {
-            socket.leave(roomId);
-            console.log(`User left room: ${roomId}`);
-        });
-
-        socket.on('getRoomCount', (roomId, callback) => {
-            io.in(roomId).allSockets().then(sockets => {
-                const count = sockets.size; 
-                console.log(count)
-                callback(count);
-            }).catch(error => {
-                console.error('Erreur lors de la récupération du nombre de personnes dans la room:', error);
+        setInterval(() => {
+            let roomSizes = {};
+            io.sockets.adapter.rooms.forEach((value, key) => {
+                if (!value.has(key)) {  // vérifie que ce n'est pas une socket individuelle
+                    roomSizes = {room:key, users:value.size};
+                }
             });
-        });
+            io.emit('room sizes update', roomSizes);
+        }, 10000);  
+
     };
 }
