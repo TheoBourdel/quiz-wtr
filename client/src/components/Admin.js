@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Button, Label, Modal, TextInput } from 'flowbite-react';
+import { Button, Label, Modal, TextInput, ToggleSwitch } from 'flowbite-react';
 import QuizCard from './QuizCard';
 import axios from 'axios'
 import { useNavigate } from "react-router-dom";
@@ -9,6 +9,8 @@ export default function Admin() {
     const [openModal, setOpenModal] = useState(false);
     const [quizs, setQuizs] = useState([]);
     const [name, setName] = useState('');
+    const [isRandom, setIsRandom] = useState(false);
+    const [timePerQuestion, setTimePerQuestion] = useState(null);
     const [currentQuiz, setCurrentQuiz] = useState(null);
     const { user } = useAuth();
 
@@ -35,7 +37,9 @@ export default function Admin() {
     function createQuiz() {
         onCloseModal();
         axios.post('http://localhost:8000/quiz', {
-            name
+            name,
+            isRandom,
+            timePerQuestion
         }).then(res => {
             setQuizs([...quizs, res.data]);
             console.log(res);
@@ -48,6 +52,8 @@ export default function Admin() {
         setCurrentQuiz(quiz);
         setOpenModal(true);
         setName(quiz.name);
+        setIsRandom(quiz.israndom);
+        setTimePerQuestion(quiz.timer);
     }
 
     function deleteQuiz(id) {
@@ -64,7 +70,9 @@ export default function Admin() {
 
     function updateQuiz(id) {
         axios.put(`http://localhost:8000/quiz/${id}`, {
-            name
+            name,
+            isRandom,
+            timePerQuestion
         }).then(res => {
             setQuizs(quizs.map(quiz => {
                 if(quiz.id === id) {
@@ -101,6 +109,19 @@ export default function Admin() {
                                 required
                             />
                         </div>
+                        <div>
+                            <div className="mb-2 block">
+                                <Label htmlFor="timePerQuestion" value="Temps par question" />
+                            </div>
+                            <TextInput
+                                id="timePerQuestion"
+                                placeholder="Temps par question"
+                                value={timePerQuestion}
+                                onChange={(event) => setTimePerQuestion(event.target.value)}
+                                required
+                            />
+                        </div>
+                        <ToggleSwitch checked={isRandom} label={isRandom ? "Question aléatoire" : "Question dans l'ordre"} onChange={setIsRandom} />
                         <div className="w-full">
                             {
                                 currentQuiz ? 

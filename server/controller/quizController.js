@@ -5,8 +5,10 @@ export const createQuiz = async (req, res) => {
     try {
 
         const { name } = req.body;
+        const israndom = req.body.isRandom;
+        const timer = req.body.timePerQuestion;
 
-        const quiz = await QuizModel.create({ name });
+        const quiz = await QuizModel.create({ name, israndom, timer });
 
         return res.status(201).json(quiz);
 
@@ -24,6 +26,8 @@ export const updateQuiz = async (req, res) => {
         const quiz = await QuizModel.findByPk(id);
 
         quiz.name = name;
+        quiz.israndom = req.body.isRandom;
+        quiz.timer = req.body.timePerQuestion;
 
         await quiz.save();
 

@@ -14,7 +14,7 @@ const Room = sequelize.define('room', {
         type: DataTypes.STRING(255),
         allowNull: false
     },
-    isPrivate: {
+    isprivate: {
         type: DataTypes.BOOLEAN,
         allowNull: false
     },
@@ -26,7 +26,7 @@ const Room = sequelize.define('room', {
         type: DataTypes.STRING(255),
         allowNull: true
     },
-    nombreDePersonne: {
+    nombredepersonne: {
         type: DataTypes.INTEGER
     },
     quiz_id: {
