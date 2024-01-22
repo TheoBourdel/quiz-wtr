@@ -6,7 +6,7 @@ export const register = async (req, res) => {
     try {
         const { username, password, role } = req.body;
 
-        const exist = await UserModel.findOne({ username });
+        const exist = await UserModel.findOne({ where: {username} });
 
         if (exist && exist.dataValues.username === username) {
             return res.status(400).json({ message: 'Un compte est déjà attribué à cet utilisateur' });

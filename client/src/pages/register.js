@@ -65,35 +65,40 @@ export default function Register() {
 
 
     return (
-        <Card className='flex justify-center '>
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} className='flex max-w-md flex-col gap-4 m-auto'>
                 <ToastContainer />
-                <h1 className="text-xl text-center font-bold leading-tight tracking-tight text-gray-900  dark:text-white">
+                <h1 className="text-xl text-center font-bold leading-tight tracking-tight text-gray-900 dark:text-white">
                     Inscription
                 </h1>
-                <div className="mb-6">
-                    <Label htmlFor="username"  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white" value="Pseudo" />
+                <div>
+                    <div className="mb-2 block">
+                        <Label htmlFor="username"  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white" value="Pseudo" />
+                    </div>
                     <TextInput 
                     onChange={handleChange}
-                    value={formData.username} type="text" name="username" id="username" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="pseudo" required />
-                </div>
-                <div className="mb-6">
-                    <Label htmlFor="password"  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white" value="Mot de passe" />
-                    <TextInput
-                    onChange={handleChange}
-                    value={formData.password} name="password" placeholder='••••••••' type="password" id="password" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required />
+                    value={formData.username} type="text" name="username" id="username" placeholder="pseudo" required />
                 </div>
                 <div>
-                    <Label htmlFor="repeatPassword"  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white" value="Confirmer le mot de passe" />
+                    <div className="mb-2 block">
+                        <Label htmlFor="password"  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white" value="Mot de passe" />
+                    </div>
+                    <TextInput
+                    onChange={handleChange}
+                    value={formData.password} name="password" placeholder='••••••••' type="password" id="password" required />
+                </div>
+                <div>
+                    <div className="mb-2 block">
+                        <Label htmlFor="repeatPassword"  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white" value="Confirmer le mot de passe" />
+                    </div>
                     <TextInput 
                     onChange={handleChange}
-                    value={formData.repeatPassword} type="password" name="repeatPassword" id="repeatPassword" placeholder="••••••••" className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required="" />
+                    value={formData.repeatPassword} type="password" name="repeatPassword" id="repeatPassword" placeholder="••••••••" required />
                 </div>
-                <Button type="submit" className="mt-8 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Créer un compte</Button>
-                <p className="mt-6 text-sm font-light text-gray-500 dark:text-gray-400">
+
+                <Button type="submit">Créer un compte</Button>
+                <p className="text-center text-sm font-light text-gray-500 dark:text-gray-400">
                     Vous avez déjà un compte? <Link to="/login" className="font-medium text-primary-600 hover:underline dark:text-primary-500">Connectez-vous ici</Link>
                 </p>
             </form>
-        </Card>
     )
 }
