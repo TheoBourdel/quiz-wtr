@@ -7,12 +7,16 @@ import QuestionEdition from './components/QuestionEdition';
 import Login from './pages/login';
 import Register from './pages/register';
 import { AuthProvider } from './context/AuthContext';
+import { SocketProvider } from './context/SocketContext';
+
 import Games from './components/Game';
 import Quiz from './components/Quiz';
 
 function App() {
   return (
+
   <AuthProvider>
+    <SocketProvider>
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Layout />}>
@@ -26,6 +30,7 @@ function App() {
         </Route>
       </Routes>
     </BrowserRouter>
+    </SocketProvider>
   </AuthProvider>
   );
 }
