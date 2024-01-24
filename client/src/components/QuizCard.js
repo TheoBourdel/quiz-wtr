@@ -8,88 +8,71 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from '../context/AuthContext';
 import { useSocket } from '../context/SocketContext';
 
-export default function QuizCard({ name, isAdmin, deleteQuiz, quizId, updateQuiz, createRoom, isCreationRoom}) {
-    const {user} = useAuth();
-    const [room, setRoom] = useState();
-    const [roomId, setRoomId] = useState('');
-    const [currsocket, setSocket] = useState(null);
-    const [nombrePersonneConnecte, setNombrePersonne] = useState();
-    const [nombrePersonneMax, setNombrePersonneMax] = useState();
-    const navigate = useNavigate();
-    const socket = useSocket();
+export default function QuizCard({isRoom, room, name, isAdmin, deleteQuiz, quizId, updateQuiz, createRoom, joinGame, nbPersonne}) {
+
+    const [currentRoom, setRoom] = useState();
+    const [roomSize, setRoomSize] = useState(0);
+    // const socket = useSocket();
+    const socket = io('http://localhost:8000');
 
 
-    function getRoomData(){
-        axios.get(`http://localhost:8000/room/${quizId}`)
+    function getCurrentQuizData(){
+        axios.get(`http://localhost:8000/quiz/${room.quiz_id}`)
         .then(res => {
-            setRoom(res.data)
-            setNombrePersonneMax(res.data.nombreDePersonne)
-            setRoomId(res.data.quiz_id+'-'+res.data.link)
+             setRoom(res.data)
         }).catch(err => {
             console.log(err);
         })
     }
 
-    function changeRoomStatus(){
-        if(room) {
-            console.log(room?.id)
-            axios.put(`http://localhost:8000/room/${room?.id}`, {
-                status: 'start'
-            }).then(res => {
-                console.log(res)
-                setRoom(res)
-            }).catch(err => {
-                console.log(err);
-            })
-        }
-    }
-
-    function joinGame() {
-        const data = {roomId:room.quiz_id+'-'+room.link, userId: user?.id}
-        if (roomId !== '' && user?.id !== '') {
-            currsocket.emit('joinRoom', data);
-            
-            setTimeout(() => {
-                navigate(`/quiz/${room.link}`)
-            }, 1500)
-        }
-    }
-
     useEffect(() => {
-        const socket = io('http://localhost:8000');
-        setSocket(socket);
-        
-        socket.on('room sizes update', (data) => {
-            setNombrePersonne(data?.users)
-        });
+        if(room) {
+            getCurrentQuizData();
+        }
     }, []);
 
     useEffect(() => {
-        if(nombrePersonneMax && nombrePersonneConnecte && nombrePersonneMax == nombrePersonneConnecte) {
-            changeRoomStatus()
-        }
-    }, [nombrePersonneMax, nombrePersonneConnecte])
+        if(room) {
+            if(roomSize !== room.nombreDePersonne) {
 
-    useEffect(() => {
-        getRoomData()
-    }, [quizId])
+                const intervalId = setInterval(() => {
+                    socket.emit('request room size', room?.link);
+                }, 1000);
+        
+                socket.on('room size', (data) => {
+                    setRoomSize(data.roomSize)
+                });
+                
+                return () => {
+                    clearInterval(intervalId);
+                    socket.off('room size');
+                    socket.close();
+                };
+            }
+
+        }
+    }, [room, socket]);
+
 
     return (
         <Card className="w-[500px]">
             <h5 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                {name} 
+                {isRoom == false ? name : ''} 
             </h5>
-            {room && room.status === 'new' ? '' : 'En cours'}
-            {nombrePersonneConnecte > 0 && nombrePersonneMax > nombrePersonneConnecte && 'La partie va bientot commancer' }
-
             <p className="font-normal text-gray-700 dark:text-gray-400">
-                Nombre de Personnes {nombrePersonneConnecte ? nombrePersonneConnecte : 0 } / {nombrePersonneMax}
+                {isRoom == false ? 'Nombre de questions' : ''} 
+                
             </p>
-
-            <p className="font-normal text-gray-700 dark:text-gray-400">
-                Nombre de questions 
-            </p>
-
+            {isRoom && room && room.status !== 'new' ? 'En cours' : ''}
+            {
+                    room && 
+                    <p className="font-normal text-gray-700 dark:text-gray-400">
+                        Nombre de Personnes {roomSize ? roomSize : 0 } / {room?.nombreDePersonne}
+                    </p>
+            }
+            <h5 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                {currentRoom && currentRoom.name} 
+            </h5>
 
             {
                 isAdmin && (
@@ -103,7 +86,7 @@ export default function QuizCard({ name, isAdmin, deleteQuiz, quizId, updateQuiz
                 )  
             } 
             {
-                !room ? (
+                !isRoom ? (
                     <Button onClick={()=>createRoom()}>
                         START
                         <svg className="-mr-1 ml-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
@@ -116,7 +99,10 @@ export default function QuizCard({ name, isAdmin, deleteQuiz, quizId, updateQuiz
                     </Button>
                 ) :
                 (
-                    <Button onClick={()=>joinGame()} disabled={nombrePersonneMax === nombrePersonneConnecte || room.status != 'new'}>
+                    <Button
+                    onClick={()=>joinGame()} 
+                    disabled={roomSize == room.nombreDePersonne|| room.status != 'new'}
+                    >
                         REJOINDRE LA PARTIE
                         <svg className="-mr-1 ml-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                             <path

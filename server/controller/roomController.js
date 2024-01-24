@@ -55,3 +55,12 @@ export const changeRoomState = async (req, res) => {
         return res.status(500).json({ message: error.message });
     }
 }
+
+export const getRooms = async (req, res) => {
+    try {
+        const rooms = await RoomModel.findAll();
+        return res.status(200).json(rooms);
+    } catch(error) {
+        return res.status(500).json({ message: error.message });
+    }
+}

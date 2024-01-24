@@ -10,13 +10,14 @@ import { useSocket } from '../context/SocketContext';
 
 function Quiz() {
     const { link } = useParams();
-    // const socket = io('http://localhost:8000', { transports: ['websocket'] });
     const [room, setRoom] = useState();
     const [isPrivate, setIsPrivate] = useState();
     const [password, setPassword] = useState();
     const [openModal, setOpenModal] = useState(false);
     const {user} = useAuth();
     const socket = useSocket();
+    // const socket = io('http://localhost:8000');
+
 
     function getRoomData(){
         axios.get(`http://localhost:8000/roomlink/${link}`)
@@ -29,11 +30,31 @@ function Quiz() {
         })
     }
 
-
     useEffect(() => {
-        getRoomData()
-    }, [link]);
+        getRoomData();
 
+        if(socket) {
+            console.log(socket)
+            const leaveRoom = () => {
+                socket.emit('leave_room', room?.link);
+            };
+    
+            window.addEventListener('beforeunload', leaveRoom);
+    
+            return () => {
+                leaveRoom();
+                socket.emit('leave_room', room?.link)
+                window.removeEventListener('beforeunload', leaveRoom);
+            };
+        } else {
+
+            console.log(socket)
+            
+        }
+
+        
+
+    }, [link, room]);
 
     function checkPassword () {
         if(password && room ) {
@@ -41,7 +62,7 @@ function Quiz() {
                 setOpenModal(false);
             } else {
                 toast.error("mot de passe incorrect", {
-                    position: toast.POSITION.TOP_RIGHT
+                    position: toast.POSITION.TOP_RIGHT 
                 });
             }
         }
