@@ -3,8 +3,10 @@ import RoomModel from '../model/roomModel.js';
 export const createRoom = async (req, res) => {
     try {
 
-        const { nombreDePersonne, isPrivate, link, password, quiz_id, status } = req.body;
-        const room = await RoomModel.create({ nombreDePersonne, isPrivate, link, password, quiz_id, status });
+        const { nombreDePersonne, link, password, quiz_id, status } = req.body;
+        const isprivate = req.body.isPrivate;
+        const nombredepersonne = req.body.nombreDePersonne;
+        const room = await RoomModel.create({ nombredepersonne, isprivate, link, password, quiz_id, status });
 
         return res.status(201).json(room);
 
