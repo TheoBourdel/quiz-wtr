@@ -44,5 +44,4 @@ const Room = sequelize.define('room', {
 
 Room.belongsTo(Quiz, { foreignKey: 'quiz_id' });
 
-// Cette commande créera la table 'room' dans la base de données si elle n'existe pas
 export default Room;

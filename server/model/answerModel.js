@@ -1,7 +1,7 @@
 // answerModel.js
 import sequelize from '../db/conn.js';
 import { DataTypes, Model } from 'sequelize';
-import Question from './questionModel.js';
+// import Question from './questionModel.js';
 
 class Answer extends Model {}
 
@@ -19,10 +19,10 @@ Answer.init({
     question_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
-        references: {
-            model: Question,
-            key: 'id',
-        },
+        // references: {
+        //     model: Question,
+        //     key: 'id',
+        // },
     },
     is_correct: {
         type: DataTypes.BOOLEAN,
@@ -37,6 +37,6 @@ Answer.init({
     subQuery: false,
 });
 
-Answer.belongsTo(Question, { foreignKey: 'question_id', onDelete: 'CASCADE' });
+// Answer.belongsTo(Question, { foreignKey: 'question_id', onDelete: 'CASCADE' });
 
 export default Answer;

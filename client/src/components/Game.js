@@ -6,9 +6,9 @@ import { useNavigate } from "react-router-dom";
 import axios from 'axios'
 import QuizCard from './QuizCard';
 import io from 'socket.io-client';
-import { useSocket } from '../context/SocketContext';
 import { ToastContainer, toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
+import { useSocket } from '../hooks/useSocket';
 
 export default function Games() {
     const [quizs, setQuizs] = useState([]);
@@ -28,8 +28,7 @@ export default function Games() {
         link: token,
         password:''
     });
-    // const socket = useSocket();
-    const socket = io('http://localhost:8000');
+    const socket = useSocket();
     function generateToken() {
         return Math.random().toString(16).substr(2);
     }
@@ -92,7 +91,8 @@ export default function Games() {
     };
 
     function joinGame(room) {
-        const data = {roomId:room.link, userId: user?.id}
+        console.log(room.Quiz)
+        const data = {roomId:room.link, userId: user?.id, roomSize: room.nombredepersonne, quiz: room.Quiz}
         if ( user?.id !== '') {
             socket.emit('joinRoom', data);
             navigate(`/quiz/${room.link}`)

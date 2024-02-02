@@ -8,14 +8,23 @@ import Login from './pages/login';
 import Register from './pages/register';
 import { AuthProvider } from './context/AuthContext';
 import { SocketProvider } from './context/SocketContext';
-
 import Games from './components/Game';
 import Quiz from './components/Quiz';
+import { useSocket } from "./hooks/useSocket";
+import { useEffect } from 'react';
 
 function App() {
+  const socket = useSocket();
+
+  useEffect(() => {
+    socket.on('connect', () => {
+      console.log('connected');
+    })
+  })
+  
   return (
 
-  <AuthProvider>
+    <AuthProvider>
     <SocketProvider>
     <BrowserRouter>
       <Routes>

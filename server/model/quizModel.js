@@ -1,5 +1,6 @@
 import sequelize from '../db/conn.js';
 import {DataTypes, Model} from 'sequelize';
+import QuestionModel from './questionModel.js';
 
 class Quiz extends Model {}
 
@@ -28,6 +29,7 @@ Quiz.init({
     timestamps: false,
     subQuery: false
 });
+Quiz.hasMany(QuestionModel, { foreignKey: 'quiz_id' });
 
 // This will create the 'quiz' table in the database if it doesn't exist
 sequelize.sync({ alter: true });

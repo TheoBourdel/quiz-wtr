@@ -1,60 +1,182 @@
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { Button, Label, Modal, TextInput } from 'flowbite-react';
-import axios from 'axios';
+'use client';
 
-import io from 'socket.io-client';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
+import { useParams } from 'react-router-dom';
+import { Button, Label, Modal, TextInput, Tooltip, Progress } from 'flowbite-react';
+import axios, { all } from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
-import { useSocket } from '../context/SocketContext';
+import { useSocket } from '../hooks/useSocket';
+import Timer from './Timer';
+import GameAnswer from './GameAnswer';
 
-function Quiz() {
+export default function Quiz() {
     const { link } = useParams();
-    const [room, setRoom] = useState();
+    const [room, setRoom] = useState(null);
     const [isPrivate, setIsPrivate] = useState();
     const [password, setPassword] = useState();
     const [openModal, setOpenModal] = useState(false);
     const {user} = useAuth();
+    const [users, setUsers] = useState(0);
     const socket = useSocket();
-    // const socket = io('http://localhost:8000');
+    const memoizedSocket = useMemo(() => socket, [socket]);
+    const [quizStarted, setQuizStarted] = useState(false);
+    const [timeLeft, setTimeLeft] = useState(null);
 
+    const [questions, setQuestions] = useState([]);
+    const [questionTimer, setQuestionTimer] = useState(null);
+    const [currentQuestion, setCurrentQuestion] = useState(null);
+    const [answerSelections, setAnswerSelections] = useState({});
+    const [correctAnswers, setCorrectAnswers] = useState([]);
+    const [userAnswers, setUserAnswers] = useState([]);
+    const [openResultModal, setOpenResultModal] = useState(false);
+    const [resultMessage, setResultMessage] = useState('');
+    const [resultColor, setResultColor] = useState('');
 
-    function getRoomData(){
-        axios.get(`http://localhost:8000/roomlink/${link}`)
-        .then(res => {
-            setRoom(res.data)
-            setIsPrivate(res.data.isPrivate)
-            setOpenModal(res.data.isPrivate)
-        }).catch(err => {
-            console.log(err);
-        })
+    const getRoomData = async () => {
+        await axios.get(`http://localhost:8000/roomlink/${link}`)
+            .then(res => {
+                setRoom(res.data);
+                setIsPrivate(res.data.isPrivate);
+                setOpenModal(res.data.isPrivate);
+                memoizedSocket.emit('roomSize', {link: link, nombreDePersonne: res.data.nombredepersonne});
+            })
+            .catch(err => {
+                console.log(err);
+            });
+    };
+
+    function startTimer() {
+        memoizedSocket.emit('start_timer', ({time_left: 4, link: link}));
+        setTimeLeft(4);
     }
 
+    function startQuiz(room) {
+        setTimeLeft(null);
+        setQuizStarted(true);
+        memoizedSocket.emit('start_quiz', room);
+    }
+
+    const userAnswersRef = useRef(userAnswers);
+
+    useEffect(() => {
+        userAnswersRef.current = userAnswers;
+    }, [userAnswers]);
+
+
+    // Affiche les réponses des questions à l'utilisateur
+    useEffect(() => {
+        memoizedSocket.on('question_end', (data) => {
+            console.log('question end')
+            setOpenResultModal(true);
+            setCorrectAnswers(data.correctAnswers);
+
+            const userAnswered = userAnswersRef.current.length > 0;
+            const allUserAnswersCorrect = userAnswersRef.current.every((userAnswer) => 
+                userAnswer.is_correct
+            );
+        
+            setResultMessage(userAnswered ? (allUserAnswersCorrect ? 'Bravo!' : 'Dommage!') : 'Dommage!');
+            setResultColor(userAnswered ? (allUserAnswersCorrect ? 'text-green-500' : 'text-red-500') : 'text-red-500');
+        });
+
+        return () => {
+            memoizedSocket.off('question_end');
+        };
+    }, [memoizedSocket]);
+
+    // lorsque l'utilisateur sélectionne une réponse
+    const handleAnswerSelection = (selectedAnswer) => {
+        setUserAnswers(
+            [ 
+                ...userAnswers,
+                selectedAnswer
+            ]
+        );
+        console.log(userAnswers)
+    };
+
+    // Réponses des utilisateurs en temps réel (PAS ENCORE UTILISE)
+    useEffect(() => {
+        memoizedSocket.on('answer_selection_update', (data) => {
+            setAnswerSelections((prevAnswerSelections) => {
+                const newAnswerSelections = [...prevAnswerSelections];
+        
+                newAnswerSelections.push(...data.selectedAnswer);
+        
+                return newAnswerSelections;
+            });
+        });
+        
+    
+        return () => {
+            memoizedSocket.off('answer_selection_update');
+        };
+    }, [memoizedSocket]);
+    
+    // Lorsque que la question change
+    useEffect(() => {
+        memoizedSocket.on('question_selection', (data) => {
+            setOpenResultModal(false);
+            setUserAnswers([]);
+            const { question, correctAnswers } = data;
+            setCurrentQuestion(question);
+            setCorrectAnswers(correctAnswers);
+        });
+    
+        memoizedSocket.on('question_timer', (data) => {
+            setQuestionTimer(data.questionTimeLeft);
+        });
+    
+        return () => {
+            memoizedSocket.off('question_selection');
+            memoizedSocket.off('question_timer');
+        };
+    }, [memoizedSocket]);
+    
+    // Timer du début du quiz
+    useEffect(() => {
+        const handleTimerUpdate = (updatedTimer) => {
+            setTimeLeft(updatedTimer);
+            if (updatedTimer === 0) {
+                setTimeLeft(null);
+                startQuiz(room);
+            }
+        };
+    
+        memoizedSocket.on('timerUpdate', handleTimerUpdate);
+    
+        return () => {
+            memoizedSocket.off('timerUpdate', handleTimerUpdate);
+        };
+    }, [room, memoizedSocket]);
+
+    // Quand l'utilisateur quitte la page
+    useEffect(() => () => {
+        memoizedSocket.emit('leave_room', link);
+        memoizedSocket.off('timerUpdate');
+    }, []);
+
+    // Quand l'utilisateur rejoint la page
+    useEffect(() => {
+        memoizedSocket.on('room_size', (data) => {
+            setUsers(data.numUsersInRoom);
+            if (data.numUsersInRoom === data.nombreDePersonne) {
+                startTimer();
+            }
+        });
+
+        return () => {
+            memoizedSocket.off('room_size');
+            memoizedSocket.off('timerUpdate');
+        }
+        
+    }, [memoizedSocket]);
+
+    // Quand l'utilisateur rejoint la page
     useEffect(() => {
         getRoomData();
-
-        if(socket) {
-            console.log(socket)
-            const leaveRoom = () => {
-                socket.emit('leave_room', room?.link);
-            };
-    
-            window.addEventListener('beforeunload', leaveRoom);
-    
-            return () => {
-                leaveRoom();
-                socket.emit('leave_room', room?.link)
-                window.removeEventListener('beforeunload', leaveRoom);
-            };
-        } else {
-
-            console.log(socket)
-            
-        }
-
-        
-
-    }, [link, room]);
+    }, [link]);
 
     function checkPassword () {
         if(password && room ) {
@@ -69,8 +191,42 @@ function Quiz() {
     }
 
     return (
-        <div> 
-            <ToastContainer /> 
+        <div className='w-full relative'>
+            {timeLeft !== null && (
+                <Timer time={timeLeft} />
+            )}
+            <ToastContainer />
+            <Modal show={openResultModal} size="md">
+                <Modal.Body>
+                    <div className="space-y-6">
+                    <div className={`text-lg font-semibold ${resultColor}`}>
+                    {resultMessage}
+                    </div>
+
+                    {
+                        currentQuestion && (
+                            currentQuestion.Answers.map((answer, index) => {
+                                // Vérifiez si la réponse actuelle est correcte
+                                const isCorrect = answer.is_correct;
+
+                                // Vérifiez si la réponse actuelle a été sélectionnée par l'utilisateur
+                                const isSelected = userAnswers.some(selectedAnswer => selectedAnswer.id === answer.id);
+
+                                // Appliquez la classe en fonction de la condition
+                                const className = `p-4 rounded-lg text-lg ${isCorrect ? 'bg-green-500' : (isSelected ? 'bg-red-500' : '')}`;
+
+                                return (
+                                    <div key={index} className={className + ' border border-solid'}>
+                                        {answer.name}
+                                    </div>
+                                );
+                            })
+                        )
+                    }
+                    </div>
+                </Modal.Body>
+            </Modal>
+
             {
                 isPrivate && 
                 (<Modal show={openModal} size="md" dismissible>
@@ -97,10 +253,55 @@ function Quiz() {
                     </Modal.Body>
                 </Modal> )
             }
-            <h1>Quiz</h1>
-            <p>Link: {link}</p>
+            <div className='flex flex-row justify-between'>
+                <div>
+                    <h1 className='text-2xl font-semibold dark:text-white'>
+                        {room && room.Quiz.name}
+                    </h1>
+                    {
+                        room && (
+                            <p className='dark:text-white'>Joueurs : {users} / {room.nombredepersonne}</p>
+                        )
+                    }
+                </div>
+                <div>
+                <div className=''>
+                    <Tooltip content="lien copié !" trigger="click">
+                        <Button size="xs" color='gray' onClick={() => {navigator.clipboard.writeText(link)}}>{link}</Button>
+                    </Tooltip>
+                </div>
+                </div>
+            </div>
+            <div className='flex flex-col space-y-4 mt-4'>
+                {
+                    quizStarted && (
+                        <div>
+                            <h1 className='text-2xl font-semibold dark:text-white text-center'>
+                                {currentQuestion && (currentQuestion.name)}
+                            </h1>
+                            <div className="p-4">
+                                {
+                                    questionTimer && (
+                                        <>
+                                            {/* <p className='dark:text-white'>Temps restant : {questionTimer}</p> */}
+                                            <Progress progress={questionTimer * 10} size="lg" labelProgress={true} progressLabelPosition="inside" />
+                                        </>
+                                    )
+                                }
+                            </div>
+                            <div className='grid grid-cols-2 gap-10 justify-center px-10 md:px-32'>
+                                {
+                                    currentQuestion && (
+                                        currentQuestion.Answers.map((answer, index) => (
+                                            <GameAnswer key={index} answer={answer} onAnswerSelected={handleAnswerSelection} />
+                                        ))
+                                    )
+                                }
+                            </div>
+                        </div>
+                    )
+                }
+            </div>
         </div>
     );
 }
-
-export default Quiz;

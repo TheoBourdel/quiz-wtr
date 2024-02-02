@@ -37,12 +37,10 @@ const io = new Server(server, {
         methods: ["GET", "POST"]
     }
 });
-
-io.on('connection', (socket) => {
-    console.log('A user connected');
+io.on('connect', (socket) => {
+    console.log('A user connected', socket.id);
     roomSocket(io)(socket);
 });
-
 
 app.get('/api', (req, res) => {
     res.send('Hello World!')

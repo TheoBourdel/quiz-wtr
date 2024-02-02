@@ -1,4 +1,7 @@
 import RoomModel from '../model/roomModel.js';
+import QuizModel from '../model/quizModel.js';
+import QuestionModel from '../model/questionModel.js';
+import AnswerModel from '../model/answerModel.js';
 
 export const createRoom = async (req, res) => {
     try {
@@ -18,7 +21,10 @@ export const createRoom = async (req, res) => {
 export const getRoomByQuizId = async (req, res) => {
     try {
         const quizId = req.params.id;
-        const room = await RoomModel.findOne({ where: { quiz_id: quizId } });
+        const room = await RoomModel.findOne({ 
+            where: { quiz_id: quizId },
+            include: QuizModel
+        });
 
         if (!room) {
             return res.status(404).json({ message: "Room not found for the provided quiz ID." });
@@ -33,7 +39,18 @@ export const getRoomByQuizId = async (req, res) => {
 export const getRoomByLink = async (req, res) => {
     try {
         const link = req.params.link;
-        const room = await RoomModel.findOne({ where: { link: link } });
+        const room = await RoomModel.findOne({ 
+            where: { link: link },
+            include: [{
+                model: QuizModel,
+                include: [{
+                    model: QuestionModel,
+                    include: [{
+                        model: AnswerModel,
+                    }],
+                }],
+            }]
+        });
 
         if (!room) {
             return res.status(404).json({ message: "Room not found for the provided Link." });
@@ -60,7 +77,11 @@ export const changeRoomState = async (req, res) => {
 
 export const getRooms = async (req, res) => {
     try {
-        const rooms = await RoomModel.findAll();
+        const rooms = await RoomModel.findAll({
+            include: [{
+                model: QuizModel,
+            }]
+        });
         return res.status(200).json(rooms);
     } catch(error) {
         return res.status(500).json({ message: error.message });

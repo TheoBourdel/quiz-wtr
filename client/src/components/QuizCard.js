@@ -13,7 +13,7 @@ export default function QuizCard({isRoom, room, name, isAdmin, deleteQuiz, quizI
     const [currentRoom, setRoom] = useState();
     const [roomSize, setRoomSize] = useState(0);
     // const socket = useSocket();
-    const socket = io('http://localhost:8000');
+    // const socket = io('http://localhost:8000');
 
 
     function getCurrentQuizData(){
@@ -31,33 +31,33 @@ export default function QuizCard({isRoom, room, name, isAdmin, deleteQuiz, quizI
         }
     }, []);
 
-    useEffect(() => {
-        if(room) {
-            if(roomSize !== room.nombreDePersonne) {
+    // useEffect(() => {
+    //     if(room) {
+    //         if(roomSize !== room.nombreDePersonne) {
 
-                const intervalId = setInterval(() => {
-                    socket.emit('request room size', room?.link);
-                }, 1000);
+    //             const intervalId = setInterval(() => {
+    //                 // socket.emit('request room size', room?.link);
+    //             }, 1000);
         
-                socket.on('room size', (data) => {
-                    setRoomSize(data.roomSize)
-                });
+    //             // socket.on('room size', (data) => {
+    //             //     setRoomSize(data.roomSize)
+    //             // });
                 
-                return () => {
-                    clearInterval(intervalId);
-                    socket.off('room size');
-                    socket.close();
-                };
-            }
+    //             // return () => {
+    //             //     clearInterval(intervalId);
+    //             //     socket.off('room size');
+    //             //     socket.close();
+    //             // };
+    //         }
 
-        }
-    }, [room, socket]);
+    //     }
+    // }, [room, socket]);
 
 
     return (
         <Card className="w-[500px]">
             <h5 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-                {isRoom == false ? name : ''} 
+                {name} 
             </h5>
             <p className="font-normal text-gray-700 dark:text-gray-400">
                 {isRoom == false ? 'Nombre de questions' : ''} 
