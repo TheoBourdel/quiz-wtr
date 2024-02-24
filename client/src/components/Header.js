@@ -10,7 +10,7 @@ export default function Header() {
     const { user} = useAuth();
     return (
         <Navbar fluid>
-            <Navbar.Brand href="https://flowbite-react.com">
+            <Navbar.Brand href="http://localhost:3000/">
                 <span className="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
                     Quiz Game { user && user.username}
                 </span>

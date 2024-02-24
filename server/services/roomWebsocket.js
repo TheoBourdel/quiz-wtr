@@ -4,6 +4,8 @@ export default function (io) {
         let timerInterval;
         let userAnswers = [];
         let userCurrentQuestionAnswers = {};
+        let scores = {};
+
 
         socket.on('joinRoom', (room) => {
             socket.join(room.roomId);
@@ -69,6 +71,12 @@ export default function (io) {
                     io.to(room.link).emit('question_timer', { questionTimeLeft: timeLeft, currentQuestionIndex: index });
                     if (timeLeft === 0) {
                         clearInterval(questionTimerInterval);
+
+                        if (index >= shuffledQuestions.length - 1) {
+                            // const winner = determineWinner(scores);
+                            // io.to(room.link).emit('quiz_end', winner );
+                            endQuizAndAnnounceWinners();
+                        }
         
                         // Passez à la question suivante si elle existe
                         if (index < shuffledQuestions.length - 1) {
@@ -86,7 +94,7 @@ export default function (io) {
                                 } else {
                                     // Vous pouvez émettre un événement 'quiz_end' ou effectuer d'autres actions ici
                                 }
-                            }, 5000);
+                            }, 3000);
                         } else {
                             // Vous pouvez émettre un événement 'quiz_end' ou effectuer d'autres actions ici
                             io.to(room.link).emit('question_end', {
@@ -103,7 +111,19 @@ export default function (io) {
             // Commencez le processus avec la première question
             emitQuestion(shuffledQuestions[currentQuestionIndex], currentQuestionIndex, room.Quiz.timer);
         });
-        
+
+        socket.on('submit_answer', (data) => {
+            userAnswers.push(data);
+            const { playerId, isCorrect } = data;
+            if (isCorrect) {
+                if (!scores[playerId]) scores[playerId] = 0;
+                scores[playerId] += 1; 
+            } else {
+                scores[playerId] = 0; 
+            }
+            io.emit('score_update', { playerId, newScore: scores[playerId]});
+        });
+
         // Lorsqu'une réponse est reçue du client
         socket.on('answer_selection', (data) => {
             const { userId, selectedAnswer } = data;
@@ -115,9 +135,7 @@ export default function (io) {
         
             // Ajoutez la réponse à l'objet
             userCurrentQuestionAnswers[userId].push(selectedAnswer);
-            console.log('userCurrentQuestionAnswers', userCurrentQuestionAnswers);
         });
-        
         
         
         function shuffleQuestions(questions) {
@@ -131,5 +149,20 @@ export default function (io) {
         const getCorrectAnswers = (question) => {
             return question.Answers.filter((answer) => answer.is_correct);
         };
+
+        function endQuizAndAnnounceWinners() {
+            const finalResults = determineWinner(scores);
+            io.emit('quiz_end', finalResults); 
+        }
+       
+        function determineWinner(scores) {
+            const results = Object.entries(scores).map(([playerId, score]) => ({
+                playerId,
+                score
+            }));
+            results.sort((a, b) => b.score - a.score);
+        
+            return results;
+        }
     };
 }

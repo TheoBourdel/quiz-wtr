@@ -14,7 +14,6 @@ export const register = async (req, res) => {
 
         const salt = await bcrypt.genSalt(10);
         const hash = await bcrypt.hash(password, salt);
-        console.log(role)
         const user = await UserModel.create({ username, password: hash, role:'USER'});
 
         if (user) {
