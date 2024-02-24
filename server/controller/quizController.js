@@ -5,10 +5,33 @@ export const createQuiz = async (req, res) => {
     try {
 
         const { name } = req.body;
+        const israndom = req.body.isRandom;
+        const timer = req.body.timePerQuestion;
 
-        const quiz = await QuizModel.create({ name });
+        const quiz = await QuizModel.create({ name, israndom, timer });
 
         return res.status(201).json(quiz);
+
+    } catch (error) {
+        return res.status(500).json({ message: error.message })
+    }
+}
+
+export const updateQuiz = async (req, res) => {
+    try {
+
+        const { id } = req.params;
+        const { name } = req.body;
+
+        const quiz = await QuizModel.findByPk(id);
+
+        quiz.name = name;
+        quiz.israndom = req.body.isRandom;
+        quiz.timer = req.body.timePerQuestion;
+
+        await quiz.save();
+
+        return res.status(200).json(quiz);
 
     } catch (error) {
         return res.status(500).json({ message: error.message })

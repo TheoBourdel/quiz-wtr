@@ -1,6 +1,6 @@
 import express from 'express';
 const route = express.Router();
-import * as UserController from '../controller/user.js';
+import * as UserController from '../controller/userController.js';
 // const RefreshTokenController = require('../controller/refreshToken');
 
 route.post('/login', UserController.login)
