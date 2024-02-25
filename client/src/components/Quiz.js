@@ -9,6 +9,8 @@ import { useAuth } from '../context/AuthContext';
 import { useSocket } from '../hooks/useSocket';
 import Timer from './Timer';
 import GameAnswer from './GameAnswer';
+import Chat from './Chat';
+
 
 export default function Quiz() {
     const { link } = useParams();
@@ -218,6 +220,7 @@ export default function Quiz() {
 
     return (
         <div className='w-full relative'>
+            <Chat />
             {timeLeft !== null && (
                 <Timer time={timeLeft} />
             )}
