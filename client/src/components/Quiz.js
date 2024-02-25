@@ -34,6 +34,10 @@ export default function Quiz() {
     const [openResultModal, setOpenResultModal] = useState(false);
     const [resultMessage, setResultMessage] = useState('');
     const [resultColor, setResultColor] = useState('');
+    const [endGame, setEndGame] = useState(false);
+    const [openModalEndGame, setOpenModalEndGamel] = useState(false);
+    const [winner, setWinner] = useState(false);
+    const [allPlayersScore, setAllPlayersScore] = useState([]);
 
     const getRoomData = async () => {
         await axios.get(`http://localhost:8000/roomlink/${link}`)
@@ -65,12 +69,34 @@ export default function Quiz() {
         userAnswersRef.current = userAnswers;
     }, [userAnswers]);
 
+    useEffect(() => {
+        const maxScore = Math.max(...allPlayersScore.map(s => s.newScore));
+        const winners = allPlayersScore.filter(s => s.newScore === maxScore);
+        const isUserWinner = winners.some(winner => winner.playerId === user.id);
+        setWinner(isUserWinner)
+    }, [allPlayersScore])
 
     // Affiche les réponses des questions à l'utilisateur
     useEffect(() => {
+       memoizedSocket.on('score_update', (results) => {
+            setAllPlayersScore((prev) => {
+                const newResults = Array.isArray(results) ? results : [results];
+                return [...prev, ...newResults];
+            });
+        });
+
+        memoizedSocket.on('quiz_end', (winner) => {
+            setEndGame(true)
+            setOpenModalEndGamel(true)
+        });
+
         memoizedSocket.on('question_end', (data) => {
-            console.log('question end')
             setOpenResultModal(true);
+            if(endGame) {
+                setTimeout(() => {
+                    setOpenResultModal(false);
+                },2000)
+            }
             setCorrectAnswers(data.correctAnswers);
 
             const userAnswered = userAnswersRef.current.length > 0;
@@ -85,17 +111,17 @@ export default function Quiz() {
         return () => {
             memoizedSocket.off('question_end');
         };
-    }, [memoizedSocket]);
+    }, [memoizedSocket, endGame]);
 
     // lorsque l'utilisateur sélectionne une réponse
     const handleAnswerSelection = (selectedAnswer) => {
+        socket.emit('submit_answer', ({ playerId: user.id, isCorrect: selectedAnswer.is_correct }));
         setUserAnswers(
             [ 
                 ...userAnswers,
                 selectedAnswer
             ]
         );
-        console.log(userAnswers)
     };
 
     // Réponses des utilisateurs en temps réel (PAS ENCORE UTILISE)
@@ -252,6 +278,30 @@ export default function Quiz() {
                             <div className="w-full">
                                 <Button  className='w-full' onClick={checkPassword} >Valider</Button>
                             </div>
+                        </div>
+                    </Modal.Body>
+                </Modal> )
+            }
+
+            {
+                endGame && 
+                (<Modal show={openModalEndGame} size="md" dismissible>
+                    <Modal.Body>
+                        <div className="space-y-6">
+                            {
+                                winner ? (
+                                    <h3 className="text-xl font-medium text-gray-900 dark:text-white">
+                                        Bravo vous avez gagnez !!!
+                                     </h3>
+                                ) : (
+                                    <h3 className="text-xl font-medium text-gray-900 dark:text-white">
+                                        Dommage ! Vous avez perdu..
+                                    </h3>
+                                )
+                            }
+                            {/* <h3 className="text-xl font-medium text-gray-900 dark:text-white">
+                                Egalité !
+                            </h3> */}
                         </div>
                     </Modal.Body>
                 </Modal> )

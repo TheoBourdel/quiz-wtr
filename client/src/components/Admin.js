@@ -111,11 +111,11 @@ export default function Admin() {
                         </div>
                         <div>
                             <div className="mb-2 block">
-                                <Label htmlFor="timePerQuestion" value="Temps par question" />
+                                <Label htmlFor="timePerQuestion" value="Nombre de scondes par question" />
                             </div>
                             <TextInput
                                 id="timePerQuestion"
-                                placeholder="Temps par question"
+                                placeholder="Nombre de scondes par question"
                                 value={timePerQuestion}
                                 onChange={(event) => setTimePerQuestion(event.target.value)}
                                 required
