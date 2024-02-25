@@ -8,13 +8,6 @@ CREATE TABLE question (
     quiz_id INT REFERENCES quiz(id),
     name TEXT NOT NULL
 );
-
-CREATE TABLE answer (
-    id SERIAL PRIMARY KEY,
-    name TEXT NOT NULL,
-    is_correct BOOLEAN DEFAULT FALSE,
-    question_id INT REFERENCES question(id)
-);
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(50) NOT NULL,
@@ -22,6 +15,13 @@ CREATE TABLE IF NOT EXISTS users (
     role VARCHAR(100) NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     refresh_token TEXT
+);
+
+CREATE TABLE answer (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    is_correct BOOLEAN DEFAULT FALSE,
+    question_id INT REFERENCES question(id)
 );
 
 CREATE TABLE room (
