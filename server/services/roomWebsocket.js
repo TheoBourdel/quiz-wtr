@@ -5,6 +5,18 @@ export default function (io) {
         let userAnswers = [];
         let userCurrentQuestionAnswers = {};
 
+            socket.on('joinRoom', (room) => {
+                socket.join(room.roomId);
+                socket.roomId = room.roomId;
+            });
+
+            socket.on('chat message', (data) => {
+                const { username, message } = data;
+                io.to(socket.roomId).emit('chat message', { from: username, text: message });
+            });
+            
+
+
         socket.on('joinRoom', (room) => {
             socket.join(room.roomId);
 
