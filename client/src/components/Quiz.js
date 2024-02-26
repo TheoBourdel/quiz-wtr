@@ -93,6 +93,7 @@ export default function Quiz() {
                 setOpenModalEndGamel(false);
             }
             , 2000);
+
         });
 
         memoizedSocket.on('question_end', (data) => {
