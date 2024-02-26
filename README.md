@@ -1,5 +1,13 @@
 # WTR QUIZ
 
+# Contributions de l'équipe
+Bourdel Théo
+    - TIMER PAR QUESTIONS
+    - PARAMETRES DE QUIZ PERSONNALISABLE
+    - INTERFACE DE CREATION DE QUIZ
+    - DOCKERISATION
+    - LANCER & REJOINDRE UN QUIZZ
+    - REPONDRE AUX QUESTIONS & VOIR LE RESULTAT
 
 ## Prérequis
 Avant de commencer, assurez-vous d'avoir installé :
