@@ -7,28 +7,44 @@ import { useAuth } from '../context/AuthContext';
 
 
 export default function Header() {
-    const { user } = useAuth();
+    const { user} = useAuth();
     return (
-        <Navbar fluid rounded>
-     
-            <Navbar.Brand href="https://flowbite-react.com">
+        <Navbar fluid>
+            <Navbar.Brand href="http://localhost:3000/">
                 <span className="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
                     Quiz Game { user && user.username}
                 </span>
             </Navbar.Brand>
+            <Navbar.Collapse>
+                { user && 
+                <div className="mt-3 flex space-x-12">
+                    <Link to="/">Home</Link>
+                    { user && user.role == 'ADMIN'
+                        ?
+                        <Link to="/admin">Admin</Link>
+                        :''
+                    }
+                </div>}
+            </Navbar.Collapse>
             <div className="flex md:order-2 gap-4">
-                <Button>Get started</Button>
-                <Link to="/login">Log in</Link>
-                <Link to="/register">Sign up</Link>
+                { user && 
+                <Button>
+                    <Link to="/quizs">PLAY</Link>
+                </Button>
+                }
+
+                {!user  && 
+                <div className="mt-3 flex space-x-2">
+                    <Button> <Link to="/login">Log in</Link></Button>
+                    <Button><Link to="/register">Sign up</Link></Button>
+                </div>
+                } 
                 <Navbar.Toggle />
-                    <Flowbite>
-                <DarkThemeToggle />
+                <Flowbite>
+                    <DarkThemeToggle />
                 </Flowbite>
             </div>
-            <Navbar.Collapse>
-                <Link to="/">Home</Link>
-                <Link to="/admin">Admin</Link>
-            </Navbar.Collapse>
+
         </Navbar>
     )
 }
