@@ -69,3 +69,15 @@ Suivez ces étapes pour configurer votre environnement de développement.
     npm start
 
 ### Cela lancera l'application client sur votre navigateur par défaut.
+-----------------
+
+# FEATURES
+
+## Marouane TALBI
+#### Login/register
+#### creation du jeu (avec Theo)
+#### affichage du gagnat de la partie
+
+
+
+

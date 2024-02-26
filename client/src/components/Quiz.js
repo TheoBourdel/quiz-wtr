@@ -10,6 +10,7 @@ import { useSocket } from '../hooks/useSocket';
 import Timer from './Timer';
 import GameAnswer from './GameAnswer';
 import Chat from './Chat';
+import BackButton from './BackButton';
 
 
 export default function Quiz() {
@@ -88,6 +89,11 @@ export default function Quiz() {
         memoizedSocket.on('quiz_end', (winner) => {
             setEndGame(true)
             setOpenModalEndGamel(true)
+            setTimeout(() => {
+                setOpenModalEndGamel(false);
+            }
+            , 2000);
+
         });
 
         memoizedSocket.on('question_end', (data) => {
@@ -95,7 +101,7 @@ export default function Quiz() {
             if(endGame) {
                 setTimeout(() => {
                     setOpenResultModal(false);
-                },2000)
+                },10000)
             }
             setCorrectAnswers(data.correctAnswers);
 
@@ -107,7 +113,7 @@ export default function Quiz() {
             setResultMessage(userAnswered ? (allUserAnswersCorrect ? 'Bravo!' : 'Dommage!') : 'Dommage!');
             setResultColor(userAnswered ? (allUserAnswersCorrect ? 'text-green-500' : 'text-red-500') : 'text-red-500');
         });
-
+    
         return () => {
             memoizedSocket.off('question_end');
         };
@@ -117,13 +123,13 @@ export default function Quiz() {
     const handleAnswerSelection = (selectedAnswer) => {
         socket.emit('submit_answer', ({ playerId: user.id, isCorrect: selectedAnswer.is_correct }));
         setUserAnswers(
-            [ 
-                ...userAnswers,
+            [
+            ...userAnswers,
                 selectedAnswer
             ]
         );
     };
-
+    
     // Réponses des utilisateurs en temps réel (PAS ENCORE UTILISE)
     useEffect(() => {
         memoizedSocket.on('answer_selection_update', (data) => {
@@ -131,7 +137,7 @@ export default function Quiz() {
                 const newAnswerSelections = [...prevAnswerSelections];
         
                 newAnswerSelections.push(...data.selectedAnswer);
-        
+                        
                 return newAnswerSelections;
             });
         });
@@ -220,6 +226,7 @@ export default function Quiz() {
 
     return (
         <div className='w-full relative'>
+            <BackButton />
             <Chat />
             {timeLeft !== null && (
                 <Timer time={timeLeft} />
@@ -228,30 +235,31 @@ export default function Quiz() {
             <Modal show={openResultModal} size="md">
                 <Modal.Body>
                     <div className="space-y-6">
-                    <div className={`text-lg font-semibold ${resultColor}`}>
-                    {resultMessage}
-                    </div>
+                        <div className={`text-lg font-semibold ${resultColor}`}>
+                            {resultMessage}
+                        </div>
 
-                    {
-                        currentQuestion && (
-                            currentQuestion.Answers.map((answer, index) => {
-                                // Vérifiez si la réponse actuelle est correcte
-                                const isCorrect = answer.is_correct;
+                        {
+                            currentQuestion && (
+                                currentQuestion.Answers.map((answer, index) => {
+                                    // Vérifiez si la réponse actuelle est correcte
+                                    const isCorrect = answer.is_correct;
 
-                                // Vérifiez si la réponse actuelle a été sélectionnée par l'utilisateur
-                                const isSelected = userAnswers.some(selectedAnswer => selectedAnswer.id === answer.id);
+                                    // Vérifiez si la réponse actuelle a été sélectionnée par l'utilisateur
+                                    const isSelected = userAnswers.some(selectedAnswer => selectedAnswer.id === answer.id);
 
-                                // Appliquez la classe en fonction de la condition
-                                const className = `p-4 rounded-lg text-lg ${isCorrect ? 'bg-green-500' : (isSelected ? 'bg-red-500' : '')}`;
+                                    // Appliquez la classe en fonction de la condition
+                                    const className = `p-4 rounded-lg text-lg ${isCorrect ? 'bg-green-500' : (isSelected ? 'bg-red-500' : '')}`;
 
-                                return (
-                                    <div key={index} className={className + ' border border-solid'}>
-                                        {answer.name}
-                                    </div>
-                                );
-                            })
-                        )
-                    }
+                                    return (
+                                        <div key={index} className={className + ' border border-solid'}>
+                                            {answer.name}
+                                        </div>
+                                    );
+                                })
+                            )
+                        }
+                        <button className="absolute top-0 right-0 m-4 text-gray-500" onClick={() => setOpenResultModal(false)}>X</button>
                     </div>
                 </Modal.Body>
             </Modal>
@@ -347,7 +355,7 @@ export default function Quiz() {
                                     currentQuestion && (
                                         currentQuestion.Answers.map((answer, index) => (
                                             <GameAnswer key={index} answer={answer} onAnswerSelected={handleAnswerSelection} />
-                                        ))
+                                                                                    ))
                                     )
                                 }
                             </div>
