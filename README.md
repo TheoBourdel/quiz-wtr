@@ -70,6 +70,10 @@ Suivez ces étapes pour configurer votre environnement de développement.
 #### creation du jeu (avec Theo)
 #### affichage du gagnat de la partie
 
+#Amilcar Fernandes
+#### affichage du nombre de joueur ayant selectionné une réponse
+#### resultat de selection
+
 
 
 
